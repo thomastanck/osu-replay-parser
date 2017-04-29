@@ -3,11 +3,12 @@ import lzma, struct
 
 
 class ReplayEvent(object):
-    def __init__(self, time_since_previous_action, x, y, keys_pressed):
+    def __init__(self, time_since_previous_action, x, y, keys_pressed, timestamp):
         self.time_since_previous_action = time_since_previous_action
         self.x = x
         self.y = y
         self.keys_pressed = keys_pressed
+        self.timestamp = timestamp
 
     def __str__(self):
         return f'{self.time_since_previous_action}|{self.x}|{self.y}|{self.keys_pressed}'
@@ -136,7 +137,16 @@ class Replay(object):
         else:
             datastring = lzma.decompress(replay_data[self.offset:offset_end], format=lzma.FORMAT_AUTO).decode('ascii')[:-1]
             events = [eventstring.split('|') for eventstring in datastring.split(',')]
-            self.play_data = [ReplayEvent(int(event[0]), float(event[1]), float(event[2]), int(event[3])) for event in events]
+            self.play_data = []
+            hitobject_timestamp = 0
+            for event in events:
+                time_since_previous_action = int(event[0])
+                x = float(event[1])
+                y = float(event[2])
+                keys_pressed = int(event[3])
+                hitobject_timestamp += time_since_previous_action
+                self.play_data.append(ReplayEvent(time_since_previous_action, x, y, keys_pressed, hitobject_timestamp))
+            # self.play_data = [ReplayEvent(int(event[0]), float(event[1]), float(event[2]), int(event[3])) for event in events]
         self.offset = offset_end
 
 def parse_replay(replay_data):
