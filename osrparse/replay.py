@@ -149,14 +149,18 @@ class Replay(object):
             events = [eventstring.split('|') for eventstring in datastring.split(',')]
             self.play_data = []
             hitobject_timestamp = 0
-            for event in events:
+            for i, event in enumerate(events):
                 time_since_previous_action = int(event[0])
+                if i >= 2 and time_since_previous_action < 0:
+                    continue
                 x = float(event[1])
                 y = float(event[2])
                 keys_pressed = int(event[3])
                 hitobject_timestamp += time_since_previous_action
                 self.play_data.append(ReplayEvent(time_since_previous_action, x, y, keys_pressed, hitobject_timestamp))
             # self.play_data = [ReplayEvent(int(event[0]), float(event[1]), float(event[2]), int(event[3])) for event in events]
+            self.play_data = self.play_data[2:] # trim the first 2 lines which seem to always suck
+            #self.play_data = self.play_data[:-1] # trim the last line which seem to always suck
         self.offset = offset_end
 
 def parse_replay(replay_data):
