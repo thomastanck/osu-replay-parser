@@ -7,8 +7,18 @@ class ReplayEvent(object):
         self.time_since_previous_action = time_since_previous_action
         self.x = x
         self.y = y
-        self.keys_pressed = keys_pressed
+        self.keys_pressed = ReplayEvent.parse_keys_pressed(keys_pressed)
+        self.keys_pressed_raw = keys_pressed
         self.timestamp = timestamp
+
+    @staticmethod
+    def parse_keys_pressed(keys_pressed):
+        return (
+                keys_pressed & 1 != 0,
+                keys_pressed & 2 != 0,
+                keys_pressed & 4 != 0,
+                keys_pressed & 8 != 0,
+                )
 
     def __str__(self):
         return f'{self.time_since_previous_action}|{self.x}|{self.y}|{self.keys_pressed}'
