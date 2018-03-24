@@ -1,27 +1,30 @@
 from .enums import GameMode, Mod
-import lzma, struct
+import lzma, struct, collections
 
+ReplayEvent = collections.namedtuple('ReplayEvent', 'time_since_previous_action, x, y, keys_pressed, timestamp')
+ReplayEvent.left  = lambda self: self.keys_pressed & 1 != 0
+ReplayEvent.right = lambda self: self.keys_pressed & 2 != 0
 
-class ReplayEvent(object):
-    def __init__(self, time_since_previous_action, x, y, keys_pressed, timestamp):
-        self.time_since_previous_action = time_since_previous_action
-        self.x = x
-        self.y = y
-        self.keys_pressed = ReplayEvent.parse_keys_pressed(keys_pressed)
-        self.keys_pressed_raw = keys_pressed
-        self.timestamp = timestamp
+# class ReplayEvent(object):
+#     def __init__(self, time_since_previous_action, x, y, keys_pressed, timestamp):
+#         self.time_since_previous_action = time_since_previous_action
+#         self.x = x
+#         self.y = y
+#         self.keys_pressed = ReplayEvent.parse_keys_pressed(keys_pressed)
+#         self.keys_pressed_raw = keys_pressed
+#         self.timestamp = timestamp
 
-    @staticmethod
-    def parse_keys_pressed(keys_pressed):
-        return (
-                keys_pressed & 1 != 0,
-                keys_pressed & 2 != 0,
-                keys_pressed & 4 != 0,
-                keys_pressed & 8 != 0,
-                )
+#     @staticmethod
+#     def parse_keys_pressed(keys_pressed):
+#         return (
+#                 keys_pressed & 1 != 0,
+#                 keys_pressed & 2 != 0,
+#                 keys_pressed & 4 != 0,
+#                 keys_pressed & 8 != 0,
+#                 )
 
-    def __str__(self):
-        return f'{self.time_since_previous_action}|{self.x}|{self.y}|{self.keys_pressed}'
+#     def __str__(self):
+#         return f'{self.time_since_previous_action}|{self.x}|{self.y}|{self.keys_pressed}'
 
 
 class Replay(object):
@@ -156,6 +159,12 @@ class Replay(object):
                 x = float(event[1])
                 y = float(event[2])
                 keys_pressed = int(event[3])
+                # keys_pressed = (
+                #         keys_pressed & 1 != 0,
+                #         keys_pressed & 2 != 0,
+                #         keys_pressed & 4 != 0,
+                #         keys_pressed & 8 != 0,
+                #         )
                 hitobject_timestamp += time_since_previous_action
                 self.play_data.append(ReplayEvent(time_since_previous_action, x, y, keys_pressed, hitobject_timestamp))
             # self.play_data = [ReplayEvent(int(event[0]), float(event[1]), float(event[2]), int(event[3])) for event in events]
