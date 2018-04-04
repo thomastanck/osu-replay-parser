@@ -155,6 +155,7 @@ class Replay(object):
             for i, event in enumerate(events):
                 time_since_previous_action = int(event[0])
                 if i >= 2 and time_since_previous_action < 0:
+                    hitobject_timestamp += time_since_previous_action
                     continue
                 x = float(event[1])
                 y = float(event[2])
